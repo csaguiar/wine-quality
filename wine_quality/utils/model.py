@@ -2,6 +2,12 @@ import numpy as np
 from sklearn.linear_model import ElasticNet
 from sklearn.base import BaseEstimator
 from wine_quality.utils import metrics as metrics_utils
+import optuna
+
+
+MODELS = {
+    "elastic_net": ElasticNet
+}
 
 
 def build_model(model_name: str, params: dict) -> BaseEstimator:
@@ -15,12 +21,31 @@ def build_model(model_name: str, params: dict) -> BaseEstimator:
     Returns:
         BaseEstimator: The model.
     """
-    if model_name == "elastic_net":
-        model = ElasticNet(**params)
-    else:
+    model_class = MODELS.get(model_name)
+
+    if model_class is None:
         raise ValueError(f"Unknown model: {model_name}")
 
+    model = model_class(**params)
     return model
+
+
+def available_models() -> list:
+    """
+    Get the list of available models.
+
+    Returns:
+        list: The list of available models.
+    """
+    return list(MODELS.keys())
+
+
+def get_default_params(model_name: str, trial: optuna.trial.Trial) -> dict:
+    if model_name == "elastic_net":
+        return {
+            "alpha": trial.suggest_float("alpha", 0.05, 1.0, step=0.05),
+            "l1_ratio": trial.suggest_float("l1_ratio", 0.05, 1.0, step=0.05),
+        }
 
 
 def train_and_evaluate(

@@ -20,13 +20,31 @@ def objective(
     trial: optuna.trial.Trial, x_train: np.ndarray, y_train: np.ndarray,
     x_test: np.ndarray, y_test: np.ndarray
 ) -> float:
-    params = {
-        "alpha": trial.suggest_float("alpha", 0.0, 1.0, step=0.1),
-        "l1_ratio": trial.suggest_float("l1_ratio", 0.0, 1.0, step=0.1),
-    }
-    reg_model = model_utils.build_model(model_name, params)
+    """
+    Optuna objective function for hyperparameter tuning of a regression model.
+
+    Args:
+        trial: An Optuna `Trial` object used to sample hyperparameters.
+        x_train: A numpy array of shape `(n_samples, n_features)` containing
+            the training data.
+        y_train: A numpy array of shape `(n_samples,)` containing the target
+            values for the training data.
+        x_test: A numpy array of shape `(n_samples, n_features)` containing
+            the test data.
+        y_test: A numpy array of shape `(n_samples,)` containing the target
+            values for the test data.
+
+    Returns:
+        The root mean squared error (RMSE) of the regression model on the test
+            data.
+    """
+    available_models = model_utils.available_models()
+    model_name = trial.suggest_categorical("model_name", available_models)
+    params = model_utils.get_default_params(model_name, trial)
+    model = model_utils.build_model(model_name, params)
+    mlflow.sklearn.log_model(model, "model")
     rmse, _, _ = model_utils.train_and_evaluate(
-        reg_model, x_train, y_train, x_test, y_test
+        model, x_train, y_train, x_test, y_test
     )
     return rmse
 
@@ -39,6 +57,7 @@ if __name__ == "__main__":
     x, y = data_utils.prepare_data(df)
     x_train, x_test, y_train, y_test = data_utils.split_data(x, y)
 
+    @mlflc.track_in_mlflow()
     def optimize(trial):
         return objective(trial, x_train, y_train, x_test, y_test)
 

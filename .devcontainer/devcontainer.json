@@ -16,9 +16,7 @@
 				"ms-python.python",
 				"ms-toolsai.jupyter",
 				"ms-azuretools.vscode-docker",
-				"ms-python.flake8",
-				"GitHub.copilot",
-				"GitHub.copilot-chat"
+				"ms-python.flake8"
 			]
 		}
 	}
