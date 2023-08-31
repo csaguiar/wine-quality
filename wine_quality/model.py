@@ -42,6 +42,17 @@ def available_models() -> list:
 
 
 def get_default_params(model_name: str, trial: optuna.trial.Trial) -> dict:
+    """
+    Returns a dictionary of default hyperparameters for a given model.
+
+    Args:
+        model_name (str): The name of the model for which to retrieve default
+        hyperparameters. trial (optuna.trial.Trial): The Optuna trial object to
+        use for hyperparameter optimization.
+
+    Returns:
+        dict: A dictionary of default hyperparameters for the specified model.
+    """
     if model_name == "elastic_net":
         return {
             "alpha": trial.suggest_float("alpha", 0.05, 1.0, step=0.05),

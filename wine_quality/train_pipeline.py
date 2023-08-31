@@ -1,19 +1,9 @@
 import numpy as np
-import wine_quality.utils.model as model_utils
-import wine_quality.utils.data as data_utils
+import wine_quality.model as model_utils
+import wine_quality.data as data_utils
+import wine_quality.tracking as tracking_utils
 import optuna
-import mlflow
-from optuna.integration.mlflow import MLflowCallback
 from datetime import datetime
-
-TRACKING_URI = "http://127.0.0.1:5000"
-mlflow.set_tracking_uri(TRACKING_URI)
-tracking_uri = mlflow.get_tracking_uri()
-
-mlflc = MLflowCallback(
-    tracking_uri=tracking_uri,
-    metric_name="rmse",
-)
 
 
 def objective(
@@ -42,7 +32,7 @@ def objective(
     model_name = trial.suggest_categorical("model_name", available_models)
     params = model_utils.get_default_params(model_name, trial)
     model = model_utils.build_model(model_name, params)
-    mlflow.sklearn.log_model(model, "model")
+    tracking_utils.log_model(model, "model")
     model.fit(x_train, y_train)
     rmse, _, _ = model_utils.evaluate(model, x_test, y_test)
     return rmse
@@ -55,6 +45,7 @@ if __name__ == "__main__":
     df = data_utils.clean_data(df)
     x, y = data_utils.prepare_data(df)
     x_train, x_test, y_train, y_test = data_utils.split_data(x, y)
+    mlflc = tracking_utils.initialize_experiment()
 
     @mlflc.track_in_mlflow()
     def optimize(trial):
