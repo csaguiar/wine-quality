@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.linear_model import ElasticNet
 from sklearn.base import BaseEstimator
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from wine_quality.utils import metrics as metrics_utils
 import optuna
 
@@ -46,6 +47,33 @@ def get_default_params(model_name: str, trial: optuna.trial.Trial) -> dict:
             "alpha": trial.suggest_float("alpha", 0.05, 1.0, step=0.05),
             "l1_ratio": trial.suggest_float("l1_ratio", 0.05, 1.0, step=0.05),
         }
+
+
+def evaluate(
+    model: object, x_test: np.ndarray,
+    y_test: np.ndarray
+) -> (float, float, float):
+    """
+    Evaluates a trained model on test data using the root mean squared
+    error (RMSE), mean absolute error (MAE), and R^2 score metrics.
+
+    Args:
+        model: A trained model object with a `predict` method.
+        x_test: A numpy array of shape `(n_samples, n_features)`
+            containing the test features.
+        y_test: A numpy array of shape `(n_samples,)` containing
+            the test labels.
+
+    Returns:
+        A tuple containing the RMSE, MAE, and R^2 score of the model on the
+            test data.
+    """
+    y_pred = model.predict(x_test)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    mae = mean_absolute_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    return rmse, mae, r2
 
 
 def train_and_evaluate(

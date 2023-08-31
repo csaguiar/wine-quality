@@ -43,9 +43,8 @@ def objective(
     params = model_utils.get_default_params(model_name, trial)
     model = model_utils.build_model(model_name, params)
     mlflow.sklearn.log_model(model, "model")
-    rmse, _, _ = model_utils.train_and_evaluate(
-        model, x_train, y_train, x_test, y_test
-    )
+    model.fit(x_train, y_train)
+    rmse, _, _ = model_utils.evaluate(model, x_test, y_test)
     return rmse
 
 
