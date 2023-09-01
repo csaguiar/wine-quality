@@ -41,10 +41,11 @@ def objective(
 if __name__ == "__main__":
     model_name = "elastic_net"
     date_run = datetime.now().strftime("%Y%m%d_%H%M%S")
-    df = data_utils.load_data()
-    df = data_utils.clean_data(df)
-    x, y = data_utils.prepare_data(df)
-    x_train, x_test, y_train, y_test = data_utils.split_data(x, y)
+    df = data_utils.load()
+    df = data_utils.clean(df)
+    x, y = data_utils.prepare(df)
+    x_train, x_test, y_train, y_test = data_utils.split(x, y)
+    x_train, x_test = data_utils.transform(x_train, x_test)
     mlflc = tracking_utils.initialize_experiment()
 
     @mlflc.track_in_mlflow()

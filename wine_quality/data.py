@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 CSV_URL = "https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/winequality-red.csv"  # noqa
 
 
-def load_data() -> pd.DataFrame:
+def load() -> pd.DataFrame:
     """
     Load the wine-quality csv file from the URL.
 
@@ -28,7 +28,7 @@ def load_data() -> pd.DataFrame:
     return data
 
 
-def clean_data(data: pd.DataFrame) -> pd.DataFrame:
+def clean(data: pd.DataFrame) -> pd.DataFrame:
     """
     Clean the wine-quality dataset.
 
@@ -41,7 +41,7 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def prepare_data(data: pd.DataFrame) -> (np.ndarray, np.ndarray):
+def prepare(data: pd.DataFrame) -> (np.ndarray, np.ndarray):
     """
     Prepare the wine-quality dataset for training.
 
@@ -58,8 +58,8 @@ def prepare_data(data: pd.DataFrame) -> (np.ndarray, np.ndarray):
     return x, y
 
 
-def split_data(
-        x: np.ndarray, y: np.ndarray
+def split(
+        x: np.ndarray, y: np.ndarray, test_size: float = 0.25
 ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     Split the wine-quality dataset into training and testing sets.
@@ -74,6 +74,22 @@ def split_data(
         np.ndarray: The training labels.
         np.ndarray: The testing labels.
     """
-    train_x, test_x, train_y, test_y = train_test_split(x, y, test_size=0.25)
+    train_x, test_x, train_y, test_y = \
+        train_test_split(x, y, test_size=test_size)
 
     return train_x, test_x, train_y, test_y
+
+
+def transform(
+    x_train: np.ndarray, x_test: np.ndarray
+) -> (np.ndarray, np.ndarray):
+    """
+    Transform the features of the wine-quality dataset.
+
+    Args:
+        x (np.ndarray): The features of the wine-quality dataset.
+
+    Returns:
+        np.ndarray: The transformed features of the wine-quality dataset.
+    """
+    return x_train, x_test
